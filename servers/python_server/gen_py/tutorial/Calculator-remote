@@ -28,6 +28,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  i32 add(i32 num1, i32 num2)')
     print('  i32 calculate(i32 logid, Work w)')
     print('  void zip()')
+    print('   request_matching_symbols(string request_json)')
     print('  SharedStruct getStruct(i32 key)')
     print('')
     sys.exit(0)
@@ -131,6 +132,12 @@ elif cmd == 'zip':
         print('zip requires 0 args')
         sys.exit(1)
     pp.pprint(client.zip())
+
+elif cmd == 'request_matching_symbols':
+    if len(args) != 1:
+        print('request_matching_symbols requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.request_matching_symbols(args[0],))
 
 elif cmd == 'getStruct':
     if len(args) != 1:

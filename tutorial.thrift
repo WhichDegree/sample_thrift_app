@@ -147,6 +147,8 @@ service Calculator extends shared.SharedService {
     */
    oneway void zip()
 
+   list<string> request_matching_symbols(1:string request_json) throws (1:InvalidOperation error),
+
 }
 
 /**

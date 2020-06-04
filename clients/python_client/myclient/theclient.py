@@ -73,6 +73,9 @@ def main():
     log = client.getStruct(1)
     print('Check log: %s' % log.value)
 
+    result = client.request_matching_symbols(request_json="AA")
+
+    print("IB Symbols query result AA = " + str(result))
     # Close!
     transport.close()
 
@@ -81,4 +84,4 @@ if __name__ == '__main__':
     try:
         main()
     except Thrift.TException as tx:
-        print('%s' % tx.message)
+        print('%s' % str(tx))

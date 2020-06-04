@@ -62,6 +62,14 @@ class Iface(shared.SharedService.Iface):
         """
         pass
 
+    def request_matching_symbols(self, request_json):
+        """
+        Parameters:
+         - request_json
+
+        """
+        pass
+
 
 class Client(shared.SharedService.Client, Iface):
     """
@@ -189,6 +197,40 @@ class Client(shared.SharedService.Client, Iface):
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
 
+    def request_matching_symbols(self, request_json):
+        """
+        Parameters:
+         - request_json
+
+        """
+        self.send_request_matching_symbols(request_json)
+        return self.recv_request_matching_symbols()
+
+    def send_request_matching_symbols(self, request_json):
+        self._oprot.writeMessageBegin('request_matching_symbols', TMessageType.CALL, self._seqid)
+        args = request_matching_symbols_args()
+        args.request_json = request_json
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_request_matching_symbols(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = request_matching_symbols_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        if result.error is not None:
+            raise result.error
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "request_matching_symbols failed: unknown result")
+
 
 class Processor(shared.SharedService.Processor, Iface, TProcessor):
     def __init__(self, handler):
@@ -197,6 +239,7 @@ class Processor(shared.SharedService.Processor, Iface, TProcessor):
         self._processMap["add"] = Processor.process_add
         self._processMap["calculate"] = Processor.process_calculate
         self._processMap["zip"] = Processor.process_zip
+        self._processMap["request_matching_symbols"] = Processor.process_request_matching_symbols
         self._on_message_begin = None
 
     def on_message_begin(self, func):
@@ -301,6 +344,32 @@ class Processor(shared.SharedService.Processor, Iface, TProcessor):
             raise
         except Exception:
             logging.exception('Exception in oneway handler')
+
+    def process_request_matching_symbols(self, seqid, iprot, oprot):
+        args = request_matching_symbols_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = request_matching_symbols_result()
+        try:
+            result.success = self._handler.request_matching_symbols(args.request_json)
+            msg_type = TMessageType.REPLY
+        except TTransport.TTransportException:
+            raise
+        except InvalidOperation as error:
+            msg_type = TMessageType.REPLY
+            result.error = error
+        except TApplicationException as ex:
+            logging.exception('TApplication exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = ex
+        except Exception:
+            logging.exception('Unexpected exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("request_matching_symbols", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
 
 # HELPER FUNCTIONS AND STRUCTURES
 
@@ -715,6 +784,150 @@ class zip_args(object):
         return not (self == other)
 all_structs.append(zip_args)
 zip_args.thrift_spec = (
+)
+
+
+class request_matching_symbols_args(object):
+    """
+    Attributes:
+     - request_json
+
+    """
+
+
+    def __init__(self, request_json=None,):
+        self.request_json = request_json
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.request_json = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('request_matching_symbols_args')
+        if self.request_json is not None:
+            oprot.writeFieldBegin('request_json', TType.STRING, 1)
+            oprot.writeString(self.request_json.encode('utf-8') if sys.version_info[0] == 2 else self.request_json)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(request_matching_symbols_args)
+request_matching_symbols_args.thrift_spec = (
+    None,  # 0
+    (1, TType.STRING, 'request_json', 'UTF8', None, ),  # 1
+)
+
+
+class request_matching_symbols_result(object):
+    """
+    Attributes:
+     - success
+     - error
+
+    """
+
+
+    def __init__(self, success=None, error=None,):
+        self.success = success
+        self.error = error
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.LIST:
+                    self.success = []
+                    (_etype3, _size0) = iprot.readListBegin()
+                    for _i4 in range(_size0):
+                        _elem5 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success.append(_elem5)
+                    iprot.readListEnd()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.error = InvalidOperation()
+                    self.error.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('request_matching_symbols_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.LIST, 0)
+            oprot.writeListBegin(TType.STRING, len(self.success))
+            for iter6 in self.success:
+                oprot.writeString(iter6.encode('utf-8') if sys.version_info[0] == 2 else iter6)
+            oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        if self.error is not None:
+            oprot.writeFieldBegin('error', TType.STRUCT, 1)
+            self.error.write(oprot)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(request_matching_symbols_result)
+request_matching_symbols_result.thrift_spec = (
+    (0, TType.LIST, 'success', (TType.STRING, 'UTF8', False), None, ),  # 0
+    (1, TType.STRUCT, 'error', [InvalidOperation, None], None, ),  # 1
 )
 fix_spec(all_structs)
 del all_structs

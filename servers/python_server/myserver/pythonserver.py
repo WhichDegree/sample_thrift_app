@@ -18,10 +18,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
-import glob
-import sys
-
+from myserver.ibapiconnection.bootstrap_app_ib import BootstrapIBJTSApp
 from tutorial import Calculator
 from tutorial.ttypes import InvalidOperation, Operation
 
@@ -36,6 +33,10 @@ from thrift.server import TServer
 class CalculatorHandler:
     def __init__(self):
         self.log = {}
+        self.ibgateway_app_client = None
+
+    def connect(self):
+        self.ibgateway_app_client = BootstrapIBJTSApp("192.168.0.20", 4002, 10)
 
     def ping(self):
         print('ping()')
@@ -73,6 +74,26 @@ class CalculatorHandler:
 
     def zip(self):
         print('zip()')
+
+    def request_matching_symbols(self, query_symbol):
+        if self.ibgateway_app_client is None:
+            self.connect()
+
+        try:
+            result = self.ibgateway_app_client.get_IB_matching_symbols(query_symbol)
+        except Exception as err:
+            raise InvalidOperation(why=str(err))
+
+        final_result = []
+
+        for queue_results in result:
+
+            for original_result in queue_results:
+                print(str(original_result.contract.symbol + "," + original_result.contract.primaryExchange))
+
+                final_result.append(str(original_result.contract.symbol + "," + original_result.contract.primaryExchange))
+
+        return final_result
 
 
 if __name__ == '__main__':
