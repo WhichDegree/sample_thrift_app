@@ -111,6 +111,6 @@ if __name__ == '__main__':
     # server = TServer.TThreadPoolServer(
     #     processor, transport, tfactory, pfactory)
 
-    print('Starting the server...')
+    print('Starting the server... on port 9090')
     server.serve()
     print('done.')

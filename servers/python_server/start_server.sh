@@ -9,4 +9,4 @@ export PYTHONPATH="$parent_path":$PYTHONPATH
 echo "$PYTHONPATH"
 
 # uses system python interpreter
-python3 "$parent_path"/myserver/pythonserver.py
+python3 "$parent_path"/myserver/pythonserver.py &
