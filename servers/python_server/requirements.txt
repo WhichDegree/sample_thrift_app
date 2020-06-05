@@ -1,2 +1,2 @@
 thrift==0.13.0
-git+ssh://git@github.com/YOURNAME/tws-api.git@master#egg=ibapi&subdirectory=source/pythonclient
+git+ssh://git@github.com/JRGEMCP/tws-api.git@master#egg=ibapi&subdirectory=source/pythonclient
